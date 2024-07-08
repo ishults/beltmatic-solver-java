@@ -30,26 +30,5 @@ public abstract class Operation {
     public String toString() {
         return this.getClass().getSimpleName() + "(" + a + ", " + b + ")";
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this.getClass() != obj.getClass()) {
-            return false;
-        }
-
-        Operation other = (Operation) obj;
-
-        // Compare all relevant fields
-        return (Objects.equals(this.getA(), other.getA()) &&
-                    Objects.equals(this.getB(), other.getB()) ||
-                    Objects.equals(this.getA(), other.getB()) &&
-                    Objects.equals(this.getB(), other.getA())) &&
-                Objects.equals(this.getResult(), other.getResult());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(a, b, result, this.getClass().getSimpleName());
-    }
 }
 

@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 
 // Can't be a singleton because of queue, seeds, and visitedNodes
 public class SolverService {
-    private static final List<Class<? extends Operation>> POSSIBLE_OPERATIONS = List.of(Exponentiate.class, Multiply.class, Add.class, Subtract.class/*, Remainder.class, Divide.class*/); // Prioritize bigger gains. Division and remainder never seem necessary?
+    private static final List<Class<? extends Operation>> POSSIBLE_OPERATIONS = List.of(Exponentiate.class, Multiply.class, Add.class, Subtract.class); // Prioritize bigger gains. Division and remainder never seem necessary?
     private List<Integer> seeds = new ArrayList<>();
     private final Queue<Integer> queue = new LinkedList<>();
     private final Map<Integer, List<Operation>> visitedNodes = new HashMap<>();
@@ -36,6 +36,7 @@ public class SolverService {
 
         // Iterate through the queue
         while (!queue.isEmpty()) {
+            // Check if we found it
             if (visitedNodes.containsKey(target)) {
                 return visitedNodes.get(target);
             }
@@ -56,11 +57,14 @@ public class SolverService {
             List<Operation> possibleOperations = getPossibleOperations(lastOperation.getResult(), seed);
 
             for (Operation possibleOperation : possibleOperations) {
+                if (!possibleOperation.isValid(target)) {
+                    continue;
+                }
+
                 Integer result = possibleOperation.getResult();
 
                 if (result == null
                         || result <= 0
-                        || !possibleOperation.isValid(target)
                         || visitedNodes.containsKey(result))
                 {
                     continue;
@@ -80,13 +84,13 @@ public class SolverService {
         }
     }
 
-    private static List<Operation> getPossibleOperations(int seed, Integer result) {
+    private static List<Operation> getPossibleOperations(int result, int seed) {
         return POSSIBLE_OPERATIONS.stream()
                 .map(operationClass -> {
                     try {
                         return operationClass.getDeclaredConstructor(int.class, int.class)
-                                .newInstance(seed, result);
-                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                                .newInstance(result, seed);
+                    } catch (Exception e) {
                         System.err.println("Failed to instantiate operation: " + operationClass + ". Exception: " + e.getMessage());
                         return null;
                     }

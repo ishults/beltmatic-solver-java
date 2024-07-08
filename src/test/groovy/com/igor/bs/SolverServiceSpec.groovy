@@ -49,10 +49,12 @@ class SolverServiceSpec extends Specification {
             3988                  | 15   || 3
             6557                  | 15   || 2
             7297                  | 15   || 4
+            477266                | 2   || 20
             477266                | 15   || 7
             524287                | 15   || 3
             524287                | 99   || 2
             Integer.MAX_VALUE     | 15   || 4
-//            Integer.MAX_VALUE     | 99   || 4 // Java error! OOM or StackOverflow or something. Nothing printed
+//            Integer.MAX_VALUE     | 50   || 4 // Heap space!
+//            Integer.MAX_VALUE     | 99   || 4
     }
 }
