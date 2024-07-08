@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'groovy'
+}
+
+group = 'com.igor.bs'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = 21
+    targetCompatibility = 21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spock test dependencies
+    testImplementation group: 'org.apache.groovy', name: 'groovy-all', version: '4.0.22'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
+}
+
+test {
+    useJUnitPlatform() // Use JUnit Platform for running tests
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
