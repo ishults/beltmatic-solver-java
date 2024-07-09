@@ -64,6 +64,6 @@ class SolverServiceSpec extends Specification {
             524287                | 99   || 2
             Integer.MAX_VALUE     | 15   || 4
             Integer.MAX_VALUE     | 50   || 4
-//            Integer.MAX_VALUE     | 99   || 4 // Heap space!
+            Integer.MAX_VALUE     | 99   || 4 // Heap space!
     }
 }

@@ -22,16 +22,14 @@ public class SolverService {
         this.target = target;
 
         // Create the possible seeds/extraction targets
-        seeds = IntStream.rangeClosed(1, max)
+        IntStream.rangeClosed(1, max)
                 .filter(num -> num != 10) // 10 is not an extraction target in the game!
                 .boxed()
-                .toList();
-
-        // Prime the queue and map
-        for (int seed : seeds) {
-            queue.add(seed);
-            visitedNodes.put(seed, new Extract(seed));
-        }
+                .forEach(seed -> {
+                    seeds.add(seed);
+                    queue.add(seed);
+                    visitedNodes.put(seed, new Extract(seed));
+                });
 
         // Iterate through the queue
         while (!queue.isEmpty()) {
@@ -60,13 +58,7 @@ public class SolverService {
 
                 Integer result = possibleOperation.getResult();
 
-                if (result == null
-                        || result <= 0)
-                {
-                    continue;
-                }
-
-                if (visitedNodes.containsKey(result)) {
+                if (result == null || result <= 0 || visitedNodes.containsKey(result)) {
                     continue;
                 }
 
