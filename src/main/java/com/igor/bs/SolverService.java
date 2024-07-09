@@ -1,8 +1,6 @@
 package com.igor.bs;
 
 import com.igor.bs.operation.*;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -12,11 +10,11 @@ public class SolverService {
     private static final List<Class<? extends Operation>> POSSIBLE_OPERATIONS = List.of(Exponentiate.class, Multiply.class, Add.class, Subtract.class); // Prioritize bigger gains. Division and remainder never seem necessary?
     private List<Integer> seeds = new ArrayList<>();
     private final Queue<Integer> queue = new LinkedList<>();
-    private final Map<Integer, List<Operation>> visitedNodes = new HashMap<>();
+    private final Map<Integer, Operation> visitedNodes = new HashMap<>();
 
     SolverService() {}
 
-    public List<Operation> solve(int target, int max) {
+    public Operation solve(int target, int max) {
         // Also counts for > Integer.MAX_VALUE thanks to integer overflow
         if (target <= 0 || max <= 0 || max > 99) {
            return null;
@@ -31,30 +29,28 @@ public class SolverService {
         // Prime the queue and map
         for (int seed : seeds) {
             queue.add(seed);
-            visitedNodes.put(seed, Arrays.asList(new Extract(seed, 0)));
+            visitedNodes.put(seed, new Extract(seed));
         }
 
         // Iterate through the queue
         while (!queue.isEmpty()) {
-            // Check if we found it
-            if (visitedNodes.containsKey(target)) {
-                return visitedNodes.get(target);
-            }
-
             Integer next = queue.poll();
 
             generateNextOperations(visitedNodes.get(next), target);
+        }
+
+        // Check if we found it
+        if (visitedNodes.containsKey(target)) {
+            return visitedNodes.get(target);
         }
 
         // Oh no
         return null;
     }
 
-    private void generateNextOperations(List<Operation> operations, int target) {
-        Operation lastOperation = operations.getLast();
-
+    private void generateNextOperations(Operation lastOperation, int target) {
         for (int seed : seeds) {
-            List<Operation> possibleOperations = getPossibleOperations(lastOperation.getResult(), seed);
+            List<Operation> possibleOperations = getPossibleOperations(seed, lastOperation);
 
             for (Operation possibleOperation : possibleOperations) {
                 if (!possibleOperation.isValid(target)) {
@@ -64,17 +60,19 @@ public class SolverService {
                 Integer result = possibleOperation.getResult();
 
                 if (result == null
-                        || result <= 0
-                        || visitedNodes.containsKey(result))
+                        || result <= 0)
                 {
                     continue;
                 }
 
-                List<Operation> operationsCopy = new ArrayList<>(operations);
-                operationsCopy.add(possibleOperation);
+                possibleOperation.setSteps(lastOperation.getSteps() + 1);
+
+                if (visitedNodes.containsKey(result)) {
+                    continue;
+                }
 
                 queue.add(result);
-                visitedNodes.put(result, operationsCopy);
+                visitedNodes.put(result, possibleOperation);
 
                 // Return early if we found it
                 if (result == target) {
@@ -84,12 +82,12 @@ public class SolverService {
         }
     }
 
-    private static List<Operation> getPossibleOperations(int result, int seed) {
+    private static List<Operation> getPossibleOperations(int seed, Operation lastOperation) {
         return POSSIBLE_OPERATIONS.stream()
                 .map(operationClass -> {
                     try {
-                        return operationClass.getDeclaredConstructor(int.class, int.class)
-                                .newInstance(result, seed);
+                        return operationClass.getDeclaredConstructor(int.class, Operation.class)
+                                .newInstance(seed, lastOperation);
                     } catch (Exception e) {
                         System.err.println("Failed to instantiate operation: " + operationClass + ". Exception: " + e.getMessage());
                         return null;
