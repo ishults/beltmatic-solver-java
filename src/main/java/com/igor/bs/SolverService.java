@@ -2,7 +2,6 @@ package com.igor.bs;
 
 import com.igor.bs.operation.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 // Not making this a singleton cause it's spun up and killed. Otherwise the cache can just be primed and that's no fun ★
@@ -43,14 +42,14 @@ public class SolverService {
 
             Integer next = queue.poll();
 
-            generateNextOperations(visitedNodes.get(next), target);
+            generateNextOperations(visitedNodes.get(next));
         }
 
         // Oh no
         return null;
     }
 
-    private void generateNextOperations(Operation lastOperation, int target) {
+    private void generateNextOperations(Operation lastOperation) {
         for (int seed : seeds) {
             List<Operation> possibleOperations = getPossibleOperations(seed, lastOperation);
 
