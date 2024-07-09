@@ -35,12 +35,12 @@ class SolverServiceSpec extends Specification {
 
         where:
             target                | max  || expectedSteps
-//            -10                   | 15   || null
-//            0                     | 15   || null
-//            Integer.MAX_VALUE + 1 | 15   || null
-//            Integer.MAX_VALUE     | 0    || null
-//            Integer.MAX_VALUE     | 1000 || null
-//            1                     | 15   || 0
+            -10                   | 15   || null
+            0                     | 15   || null
+            Integer.MAX_VALUE + 1 | 15   || null
+            Integer.MAX_VALUE     | 0    || null
+            Integer.MAX_VALUE     | 1000 || null
+            1                     | 15   || 0
             5                     | 1    || 4
             5                     | 15   || 0
             10                    | 15   || 1
@@ -63,7 +63,7 @@ class SolverServiceSpec extends Specification {
             524287                | 15   || 3
             524287                | 99   || 2
             Integer.MAX_VALUE     | 15   || 4
-//            Integer.MAX_VALUE     | 50   || 4 // Heap space!
-//            Integer.MAX_VALUE     | 99   || 4
+            Integer.MAX_VALUE     | 50   || 4
+//            Integer.MAX_VALUE     | 99   || 4 // Heap space!
     }
 }

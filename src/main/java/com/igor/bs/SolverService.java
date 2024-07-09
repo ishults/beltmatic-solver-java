@@ -5,20 +5,22 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-// Can't be a singleton because of queue, seeds, and visitedNodes
+// Not making this a singleton cause it's spun up and killed. Otherwise the cache can just be primed and that's no fun ★
 public class SolverService {
-    private static final List<Class<? extends Operation>> POSSIBLE_OPERATIONS = List.of(Exponentiate.class, Multiply.class, Add.class, Subtract.class); // Prioritize bigger gains. Division and remainder never seem necessary?
+    private int target;
     private List<Integer> seeds = new ArrayList<>();
     private final Queue<Integer> queue = new LinkedList<>();
     private final Map<Integer, Operation> visitedNodes = new HashMap<>();
 
-    SolverService() {}
+    SolverService() {} // Could potentially put target/max/seeds here
 
     public Operation solve(int target, int max) {
         // Also counts for > Integer.MAX_VALUE thanks to integer overflow
         if (target <= 0 || max <= 0 || max > 99) {
            return null;
         }
+
+        this.target = target;
 
         // Create the possible seeds/extraction targets
         seeds = IntStream.rangeClosed(1, max)
@@ -34,14 +36,14 @@ public class SolverService {
 
         // Iterate through the queue
         while (!queue.isEmpty()) {
+            // Check if we found it
+            if (visitedNodes.containsKey(target)) {
+                return visitedNodes.get(target);
+            }
+
             Integer next = queue.poll();
 
             generateNextOperations(visitedNodes.get(next), target);
-        }
-
-        // Check if we found it
-        if (visitedNodes.containsKey(target)) {
-            return visitedNodes.get(target);
         }
 
         // Oh no
@@ -65,35 +67,22 @@ public class SolverService {
                     continue;
                 }
 
-                possibleOperation.setSteps(lastOperation.getSteps() + 1);
-
                 if (visitedNodes.containsKey(result)) {
                     continue;
                 }
 
                 queue.add(result);
                 visitedNodes.put(result, possibleOperation);
-
-                // Return early if we found it
-                if (result == target) {
-                    return;
-                }
             }
         }
     }
 
-    private static List<Operation> getPossibleOperations(int seed, Operation lastOperation) {
-        return POSSIBLE_OPERATIONS.stream()
-                .map(operationClass -> {
-                    try {
-                        return operationClass.getDeclaredConstructor(int.class, Operation.class)
-                                .newInstance(seed, lastOperation);
-                    } catch (Exception e) {
-                        System.err.println("Failed to instantiate operation: " + operationClass + ". Exception: " + e.getMessage());
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    private static List<Operation> getPossibleOperations(int result, Operation lastOperation) {
+        return List.of(
+                new Exponentiate(result, lastOperation),
+                new Multiply(result, lastOperation),
+                new Add(result, lastOperation),
+                new Subtract(result, lastOperation)
+        ); // Division and remainder do not seem to ever be used?
     }
 }

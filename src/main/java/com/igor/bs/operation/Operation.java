@@ -2,8 +2,7 @@ package com.igor.bs.operation;
 
 public abstract class Operation {
     private final int seed;
-    private final Operation previousOperation; // The prior operation
-    private int steps = 0;
+    private final Operation previousOperation;
     Integer result;
 
     Operation(int seed, Operation previousOperation) {
@@ -24,14 +23,6 @@ public abstract class Operation {
     }
 
     public abstract boolean isValid(Integer target);
-
-    public int getSteps() {
-        return steps;
-    }
-
-    public void setSteps(int steps) {
-        this.steps = steps;
-    }
 
     @Override
     public String toString() {
